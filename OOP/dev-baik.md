@@ -144,6 +144,7 @@ fun main() {
 > 상속은 하나의 자식 클래스가 상위에 있는 부모 클래스의 속성과 동작을 물려받는 개념이다.
 
 **BEFORE**
+
 ![image](https://github.com/Android-Master-Class/Today-We-Learned/assets/96613859/3b5b7b61-12b3-4f1e-a58d-0289b5c8c91f)
 
 ```kotlin
@@ -222,7 +223,7 @@ class Car() : Vehicle() {
 class MotorBike : Vehicle() {
     var isRaceable = false
 
-    // 메서드 오버라이딩을 사용하여 상위 클래스의 기능을 재정의
+    // 메소드 오버라이딩을 사용하여 상위 클래스의 기능을 재정의
     override fun moveForward() {
         println("오토바이가 앞으로 전진한다")
     }
@@ -292,9 +293,15 @@ fun main() {
 - 하나의 객체가 다른 객체의 속성과 기능에 접근하여 어떤 기능을 사용할 때, `의존하다`라고 표현한다.
 - 즉, Driver 클래스와 다른 두 개의 클래스가 서로 직접적인 관계를 가지고 있는데, 이러한 상황은 객체들 간의 결합도가 높다.
     
-    - **단점** : 변경하고 검토해야 하는 모듈의 수가 많아져서 유지보수하기 어렵다.
+    - **결합도가 높으면** : 변경하고 검토해야 하는 모듈의 수가 많아져서 유지보수하기 어렵다.
       
         - **[모듈](https://velog.io/@ruddnjs5816/%EB%AA%A8%EB%93%88Module%EA%B3%BC-%EB%AA%A8%EB%93%88%ED%99%94Modularization)** : 프로그램을 구성하는 시스템을 기능 단위로 독립적인 부분으로 분리한 것
+
+        - **[결합도](https://inpa.tistory.com/entry/OOP-%F0%9F%92%A0-%EA%B0%9D%EC%B2%B4%EC%9D%98-%EA%B2%B0%ED%95%A9%EB%8F%84-%EC%9D%91%EC%A7%91%EB%8F%84-%EC%9D%98%EB%AF%B8%EC%99%80-%EB%8B%A8%EA%B3%84-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0-%EC%89%BD%EA%B2%8C-%EC%A0%95%EB%A6%AC#%EA%B2%B0%ED%95%A9%EB%8F%84coupling)** : 모듈 간의 상호 의존 정도
+  
+            - **응집도** : 한 모듈 내의 구성 요소들 간의 연관 정도
+          
+            - **핵심** : 좋은 소프트웨어는 결합도를 낮춰 모듈 간의 독립성을 높이고, 한 모듈에 하나의 기능(책임)과 관련있는 속성과 동작을 정의하여 높은 응집도를 유지하는 것이다.  
 
     - **해결책** : 역할과 구현을 구분하여 객체들 간의 직접적인 결합을 피하고, 느슨한 관계 설정을 통해 보다 유연하고 변경이 용이한 프로그램을 설계해야한다.
 
@@ -373,7 +380,7 @@ fun main() {
 
 **해당 클래스나 멤버들을 외부에서 접근하지 못하도록 접근을 제한하는 방법**
 
-- 접근제어자
+1. 접근제어자
 
 ```kotlin
 package package1
@@ -430,7 +437,10 @@ fun main() {
 }
 ```
 
-- getter/setter 메서드
+2. getter/setter 메소드
+
+**BEFORE**
+- Drvier 클래스가 Car 클래스의 세부적인 내부 로직을 알고 있다. 즉, 객체 간의 결합도가 높다.
 ```kotlin
 class Car(private var name: String, private var color: String) {
     fun startEngine() {
@@ -451,6 +461,50 @@ class Driver(private val name: String, private val car: Car) {
         car.startEngine()
         car.moveForward()
         car.openWindow()
+    }
+}
+
+fun main() {
+    val car = Car("테슬라 모델X", "레드")
+    val driver = Driver("김코딩", car)
+
+    // 시동을 건다
+    // 자동차가 앞으로 전진한다
+    // 모든 창문을 연다
+    driver.drive()
+}
+```
+
+**AFTER**
+- Car 클래스와 관련된 기능들은 온전히 Car 클래스에서만 관리되도록 하고, 불필요한 내부 동작의 노출을 최소화한다.
+```kotlin
+class Car(private var name: String, private var color: String) { 
+    private fun startEngine() {
+        println("시동을 건다")
+    }
+
+    private fun moveForward() {
+        println("자동차가 앞으로 전진한다")
+    }
+
+    private fun openWindow() {
+        println("모든 창문을 연다")
+    }
+    
+    fun operate() {
+        startEngine()
+        moveForward()
+        openWindow()
+    }
+}
+
+class Driver(private val name: String, private val car: Car) {
+    fun getName() {
+        return name
+    }
+    
+    fun drive() {
+        car.operate()
     }
 }
 
@@ -653,26 +707,45 @@ fun main() {
 
 - 다형성 원리를 이용하기 위한 원칙
 
--  다형성의 특징을 이용하기 위해 상위 클래스 타입으로 객체를 선언하여 하위 클래스의 인스턴스를 받으면, 업캐스팅된 상태에서 부모의 메서드를 사용해도 동작이 의도대로 흘러가야 하는 것을 의미하는 것
+-  다형성의 특징을 이용하기 위해 상위 클래스 타입으로 객체를 선언하여 하위 클래스의 인스턴스를 받으면, 업캐스팅된 상태에서 부모의 메소드를 사용해도 동작이 의도대로 흘러가야 하는 것을 의미하는 것
 
 <br/>
 
 **BEFORE**
-- Fish 물고기 클래스에 Animal 추상 클래스를 상속하면, 물고기는 행할 수 없는 speak() 메서드를 구현해야 한다.
+- Fish 물고기 클래스에 Animal 추상 클래스를 상속하면, 물고기는 행할 수 없는 speak() 메소드를 구현해야 한다.
 ```kotlin
 abstract class Animal {
-    open fun speak() {}
+    abstract fun move()
+    abstract fun speak()
 }
 
 class Cat : Animal() {
+    override fun move() {
+        println("고양이가 움직이다.")
+    }
+
     override fun speak() {
         println("냐옹")
     }
 }
 
 class Dog : Animal() {
+    override fun move() {
+        println("개가 움직이다.")
+    }
+
     override fun speak() {
         println("멍멍")
+    }
+}
+
+class Fish : Animal() {
+    override fun move() {
+        println("물고기가 헤엄치다.")
+    }
+
+    override fun speak() {
+        throw Exception("물고기는 말할 수 없다.")
     }
 }
 ```
@@ -680,25 +753,39 @@ class Dog : Animal() {
 **AFTER**
 - 인터페이스로 분리하는 작업을 통해 수정해야 한다.
 ```kotlin
-abstract class Animal
+abstract class Animal {
+    abstract fun move()
+}
 
 interface Speakable {
     fun speak()
 }
 
 class Cat : Animal(), Speakable {
+    override fun move() {
+        println("고양이가 움직이다.")
+    }
+
     override fun speak() {
         println("냐옹")
     }
 }
 
 class Dog : Animal(), Speakable {
+    override fun move() {
+        println("개가 움직이다.")
+    }
+
     override fun speak() {
         println("멍멍")
     }
 }
 
-class Fish : Animal()
+class Fish : Animal() {
+    override fun move() {
+        println("물고기가 헤엄치다.")
+    }
+}
 ```
 
 
@@ -871,5 +958,5 @@ class Character(val name: String, var health: Int, var weapon: Weaponable) {
         println("체력: $health")
         println("무기: $weapon")
     }
-} 
+}
 ```
