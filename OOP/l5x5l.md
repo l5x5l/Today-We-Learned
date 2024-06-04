@@ -253,3 +253,68 @@ class LoginViewModel constructor(
 }
 ```
 - eventFlow : [단일 이벤트를 처리할 때 좋은 eventFlow 설명](https://medium.com/prnd/mvvm의-viewmodel에서-이벤트를-처리하는-방법-6가지-31bb183a88ce)
+
+<br/>
+
+## 다형성
+- 어떤 객체의 속성(변수)이나 기능(메서드)이 상황(override, overload)에 따라 다양하게 동작할 수 있는 성질
+
+#### override
+- 상위 클래스에서 정의한 메서드를 하위 클래스에서 재정의 하는 행위
+``` kotlin
+open class Android11() {
+    open fun runApp() {
+        /* 앱의 시작 지점 Activity 실행 */
+    }
+    
+    //...
+}
+
+open class Android12() : Android11() {
+
+    // 함수 override
+    override fun runApp() {
+        showDefaultSplash()
+        super.runApp()
+    }
+    
+    private fun showDefaultSplash() {
+        /* 안드로이드 12 이후부터 보여지는 기본 스플래시 화면 */
+    }
+
+    //...
+}
+```
+
+#### overload
+- 동일한 이름을 가진 메서드의 인자의 개수, 인자의 타빙을 다르게 하여 여러 번 선언하는 것
+- java의 경우, 함수 인자에 기본값을 주는게 안되기 때문에, 만약 kotlin에서 기본값을 적용하듯이 메서드를 정의하고 싶을 때 overload를 사용하기도 합니다!
+``` java
+public class Logger {
+    private final Context context;
+    
+    public Logger(Context context) {
+        this.context = context;
+    }
+
+    // 동일한 이름, 서로 다른 인자
+    public void logToFile(String message, String filePath) {
+        /* filePath에 있는 파일에 로그용 message를 기록 */
+    }
+    
+    public void logToFile(String message) {
+        String defaultFilePath = getDefaultLogFilePath();
+        logToFile(message, defaultFilePath);
+    }
+    
+    // 기억에 의존한 코드라, 정확하지 않을 수 있습니다!
+    private String getDefaultLogFilePath() {
+        File[] dirs = context.getExternalMediaDirs();
+        if (dirs[0] != null && dirs[0].length() > 0) {
+            return dirs[0].getPath();    
+        } else {
+            return context.getFilesDir().getParent();
+        }
+    }
+}
+```
